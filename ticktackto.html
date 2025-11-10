@@ -97,6 +97,11 @@
         const scoreboard = document.getElementById("scoreboard");
         const resetButton = document.getElementById("reset");
 
+        // Audio constants
+        const p1ClickSound = new Audio("sounds/p1ClickSound.mp3");
+        const p2ClickSound = new Audio("sounds/p2ClickSound.mp3");
+        const winSound = new Audio("sounds/winSound.wav");
+
         let board = ["", "", "", "", "", "", "", "", ""];
         let currentPlayer = "X";
         let currentStarter = "X"; // ✅ who started this game
