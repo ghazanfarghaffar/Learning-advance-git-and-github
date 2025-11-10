@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tic-Tac-Toe (Alternate Turns Feature)</title>
+    <title>Tic-Tac-Toe (Sound Feature)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,12 +14,7 @@
             margin: 0;
             padding: 20px;
         }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
+        h1 { color: #333; margin-bottom: 10px; }
         #game {
             display: grid;
             grid-template-columns: repeat(3, 100px);
@@ -28,34 +22,18 @@
             gap: 5px;
             margin-bottom: 20px;
         }
-
         .cell {
-            width: 100px;
-            height: 100px;
+            width: 100px; height: 100px;
             background: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             font-size: 48px;
             cursor: pointer;
             border-radius: 10px;
             transition: 0.2s;
         }
-
-        .cell:hover {
-            background: #e0e0e0;
-        }
-
-        #status {
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-
-        #scoreboard {
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
-
+        .cell:hover { background: #e0e0e0; }
+        #status { font-size: 18px; margin-bottom: 20px; }
+        #scoreboard { font-size: 18px; margin-bottom: 15px; }
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -65,13 +43,9 @@
             color: white;
             cursor: pointer;
         }
-
-        button:hover {
-            background: #45a049;
-        }
+        button:hover { background: #45a049; }
     </style>
 </head>
-
 <body>
     <h1>Tic-Tac-Toe (2 Player)</h1>
     <div id="status">Loading...</div>
@@ -97,50 +71,40 @@
         const scoreboard = document.getElementById("scoreboard");
         const resetButton = document.getElementById("reset");
 
-        // Audio constants
+        // 🔊 Audio files
         const p1ClickSound = new Audio("sounds/p1ClickSound.mp3");
         const p2ClickSound = new Audio("sounds/p2ClickSound.mp3");
         const winSound = new Audio("sounds/winSound.wav");
 
         let board = ["", "", "", "", "", "", "", "", ""];
         let currentPlayer = "X";
-        let currentStarter = "X"; // ✅ who started this game
+        let currentStarter = "X";
         let gameActive = true;
-        let lastWinner = null; // ✅ remember who won or if draw
+        let lastWinner = null;
         let scores = { X: 0, O: 0, Draws: 0 };
 
         const winningConditions = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6],
+            [0,1,2],[3,4,5],[6,7,8],
+            [0,3,6],[1,4,7],[2,5,8],
+            [0,4,8],[2,4,6]
         ];
 
-        // ✅ Start game
         startNewRound();
 
         function startNewRound() {
             board = ["", "", "", "", "", "", "", "", ""];
-            cells.forEach((cell) => {
+            cells.forEach(cell => {
                 cell.textContent = "";
                 cell.style.background = "#fff";
                 cell.style.color = "#000";
             });
             gameActive = true;
 
-            // ✅ decide who starts this round
-            if (lastWinner === "draw" && currentStarter) {
-                // alternate starter
+            if(lastWinner === "draw" && currentStarter){
                 currentStarter = currentStarter === "X" ? "O" : "X";
-            } else if (lastWinner === "X" || lastWinner === "O") {
-                // winner starts next
+            } else if(lastWinner === "X" || lastWinner === "O"){
                 currentStarter = lastWinner;
             } else {
-                // first game
                 currentStarter = "X";
             }
 
@@ -150,69 +114,90 @@
 
         function handleCellClick(e) {
             const index = e.target.getAttribute("data-index");
-            if (board[index] !== "" || !gameActive) return;
+            if(board[index] !== "" || !gameActive) return;
 
             board[index] = currentPlayer;
             e.target.textContent = currentPlayer;
 
+            // 🔊 Play click sound
+            if(currentPlayer === "X"){
+                p1ClickSound.pause();
+                p1ClickSound.currentTime = 0;
+                p1ClickSound.play();
+            } else {
+                p2ClickSound.pause();
+                p2ClickSound.currentTime = 0;
+                p2ClickSound.play();
+            }
+
             checkWinner();
 
-            if (gameActive) {
+            if(gameActive){
                 currentPlayer = currentPlayer === "X" ? "O" : "X";
                 status.textContent = `Player ${currentPlayer}'s turn`;
             }
         }
 
-        function checkWinner() {
+        function checkWinner(){
             let roundWon = false;
             let winningCombo = [];
 
-            for (const condition of winningConditions) {
-                const [a, b, c] = condition;
-                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            for(const condition of winningConditions){
+                const [a,b,c] = condition;
+                if(board[a] && board[a] === board[b] && board[a] === board[c]){
                     roundWon = true;
                     winningCombo = condition;
                     break;
                 }
             }
 
-            if (roundWon) {
+            if(roundWon){
                 status.textContent = `Player ${currentPlayer} wins!`;
                 gameActive = false;
                 scores[currentPlayer]++;
                 updateScoreboard();
-                highlightWinner(winningCombo, currentPlayer === "X" ? "#2196F3" : "#E91E63");
-                lastWinner = currentPlayer; // ✅ remember who won
+                highlightWinner(winningCombo, currentPlayer==="X"?"#2196F3":"#E91E63");
+                lastWinner = currentPlayer;
+
+                // 🔊 Play win sound
+                winSound.pause();
+                winSound.currentTime = 0;
+                winSound.play();
                 return;
             }
 
-            if (!board.includes("")) {
+            if(!board.includes("")){
                 status.textContent = "It's a draw!";
                 gameActive = false;
                 scores.Draws++;
                 updateScoreboard();
-                lastWinner = "draw"; // ✅ remember draw
+                lastWinner = "draw";
+
+                // 🔊 Play win sound for draw
+                winSound.pause();
+                winSound.currentTime = 0;
+                winSound.play();
             }
         }
 
-        function highlightWinner(indices, color) {
-            indices.forEach((i) => {
+        function highlightWinner(indices, color){
+            indices.forEach(i => {
                 cells[i].style.background = color;
                 cells[i].style.color = "white";
             });
         }
 
-        function updateScoreboard() {
+        function updateScoreboard(){
             scoreboard.textContent = `X: ${scores.X} | O: ${scores.O} | Draws: ${scores.Draws}`;
         }
 
-        function resetGame() {
-            startNewRound(); // ✅ restart using logic
+        function resetGame(){
+            startNewRound();
         }
 
-        cells.forEach((cell) => cell.addEventListener("click", handleCellClick));
+        cells.forEach(cell => cell.addEventListener("click", handleCellClick));
         resetButton.addEventListener("click", resetGame);
+
     </script>
 </body>
-
 </html>
