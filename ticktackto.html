@@ -52,6 +52,11 @@
             margin-bottom: 20px;
         }
 
+        #scoreboard {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -72,6 +77,7 @@
 
     <h1>Tic-Tac-Toe (2 Player)</h1>
     <div id="status">Player X's turn</div>
+    <div id="scoreboard">X: 0 | O: 0 | Draws: 0</div>
     <div id="game">
         <div class="cell" data-index="0"></div>
         <div class="cell" data-index="1"></div>
@@ -89,15 +95,18 @@
         const cells = document.querySelectorAll('.cell');
         const status = document.getElementById('status');
         const resetButton = document.getElementById('reset');
+        const scoreboard = document.getElementById('scoreboard');
 
         let board = ["", "", "", "", "", "", "", "", ""];
         let currentPlayer = "X";
         let gameActive = true;
 
+        let scores = { X: 0, O: 0, Draws: 0 };
+
         const winningConditions = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
             [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
-            [0, 4, 8], [2, 4, 6]          // diagonals
+            [0, 4, 8], [2, 4, 6]             // diagonals
         ];
 
         function handleCellClick(e) {
@@ -107,14 +116,13 @@
             board[index] = currentPlayer;
             e.target.textContent = currentPlayer;
 
-            checkWinner(); // this must finish before changing player
+            checkWinner();
 
             if (gameActive) {
                 currentPlayer = currentPlayer === "X" ? "O" : "X";
                 status.textContent = `Player ${currentPlayer}'s turn`;
             }
         }
-
 
         function checkWinner() {
             let roundWon = false;
@@ -132,8 +140,9 @@
             if (roundWon) {
                 status.textContent = `Player ${currentPlayer} wins!`;
                 gameActive = false;
+                scores[currentPlayer]++;
+                updateScoreboard();
 
-                // assign color based on player
                 const color = currentPlayer === "X" ? "#2196F3" : "#E91E63";
                 highlightWinner(winningCombo, color);
                 return;
@@ -142,6 +151,8 @@
             if (!board.includes("")) {
                 status.textContent = "It's a draw!";
                 gameActive = false;
+                scores.Draws++;
+                updateScoreboard();
             }
         }
 
@@ -152,25 +163,26 @@
             });
         }
 
-
         function resetGame() {
             board = ["", "", "", "", "", "", "", "", ""];
             cells.forEach(cell => {
                 cell.textContent = "";
-                cell.style.background = "#fff";   // reset background color
-                cell.style.color = "#000";        // reset text color
+                cell.style.background = "#fff";
+                cell.style.color = "#000";
             });
             currentPlayer = "X";
             gameActive = true;
             status.textContent = `Player ${currentPlayer}'s turn`;
         }
 
+        function updateScoreboard() {
+            scoreboard.textContent = `X: ${scores.X} | O: ${scores.O} | Draws: ${scores.Draws}`;
+        }
 
         cells.forEach(cell => cell.addEventListener('click', handleCellClick));
         resetButton.addEventListener('click', resetGame);
     </script>
 
 </body>
-
 
 </html>
