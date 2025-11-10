@@ -1,188 +1,203 @@
-<!-- TICK TAC TOE GAME ION HTML -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One Page Tic-Tac-Toe</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        #game {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 5px;
-            margin-bottom: 20px;
-        }
-
-        .cell {
-            width: 100px;
-            height: 100px;
-            background: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 48px;
-            cursor: pointer;
-            border-radius: 10px;
-            transition: 0.2s;
-        }
-
-        .cell:hover {
-            background: #e0e0e0;
-        }
-
-        #status {
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-
-        #scoreboard {
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            background: #4CAF50;
-            color: white;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #45a049;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic-Tac-Toe (Alternate Turns Feature)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    #game {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+      margin-bottom: 20px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: 0.2s;
+    }
+    .cell:hover {
+      background: #e0e0e0;
+    }
+    #status {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    #scoreboard {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
 </head>
 
 <body>
+  <h1>Tic-Tac-Toe (2 Player)</h1>
+  <div id="status">Loading...</div>
+  <div id="scoreboard">X: 0 | O: 0 | Draws: 0</div>
 
-    <h1>Tic-Tac-Toe (2 Player)</h1>
-    <div id="status">Player X's turn</div>
-    <div id="scoreboard">X: 0 | O: 0 | Draws: 0</div>
-    <div id="game">
-        <div class="cell" data-index="0"></div>
-        <div class="cell" data-index="1"></div>
-        <div class="cell" data-index="2"></div>
-        <div class="cell" data-index="3"></div>
-        <div class="cell" data-index="4"></div>
-        <div class="cell" data-index="5"></div>
-        <div class="cell" data-index="6"></div>
-        <div class="cell" data-index="7"></div>
-        <div class="cell" data-index="8"></div>
-    </div>
-    <button id="reset">Reset Game</button>
+  <div id="game">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+  </div>
 
-    <script>
-        const cells = document.querySelectorAll('.cell');
-        const status = document.getElementById('status');
-        const resetButton = document.getElementById('reset');
-        const scoreboard = document.getElementById('scoreboard');
+  <button id="reset">Reset Game</button>
 
-        let board = ["", "", "", "", "", "", "", "", ""];
-        let currentPlayer = "X";
-        let gameActive = true;
+  <script>
+    const cells = document.querySelectorAll(".cell");
+    const status = document.getElementById("status");
+    const scoreboard = document.getElementById("scoreboard");
+    const resetButton = document.getElementById("reset");
 
-        let scores = { X: 0, O: 0, Draws: 0 };
+    let board = ["", "", "", "", "", "", "", "", ""];
+    let currentPlayer = "X";
+    let currentStarter = "X"; // ✅ who started this game
+    let gameActive = true;
+    let lastWinner = null; // ✅ remember who won or if draw
+    let scores = { X: 0, O: 0, Draws: 0 };
 
-        const winningConditions = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
-            [0, 4, 8], [2, 4, 6]             // diagonals
-        ];
+    const winningConditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
 
-        function handleCellClick(e) {
-            const index = e.target.getAttribute('data-index');
-            if (board[index] !== "" || !gameActive) return;
+    // ✅ Start game
+    startNewRound();
 
-            board[index] = currentPlayer;
-            e.target.textContent = currentPlayer;
+    function startNewRound() {
+      board = ["", "", "", "", "", "", "", "", ""];
+      cells.forEach((cell) => {
+        cell.textContent = "";
+        cell.style.background = "#fff";
+        cell.style.color = "#000";
+      });
+      gameActive = true;
 
-            checkWinner();
+      // ✅ decide who starts this round
+      if (lastWinner === "draw" && currentStarter) {
+        // alternate starter
+        currentStarter = currentStarter === "X" ? "O" : "X";
+      } else if (lastWinner === "X" || lastWinner === "O") {
+        // winner starts next
+        currentStarter = lastWinner;
+      } else {
+        // first game
+        currentStarter = "X";
+      }
 
-            if (gameActive) {
-                currentPlayer = currentPlayer === "X" ? "O" : "X";
-                status.textContent = `Player ${currentPlayer}'s turn`;
-            }
+      currentPlayer = currentStarter;
+      status.textContent = `Player ${currentPlayer}'s turn`;
+    }
+
+    function handleCellClick(e) {
+      const index = e.target.getAttribute("data-index");
+      if (board[index] !== "" || !gameActive) return;
+
+      board[index] = currentPlayer;
+      e.target.textContent = currentPlayer;
+
+      checkWinner();
+
+      if (gameActive) {
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        status.textContent = `Player ${currentPlayer}'s turn`;
+      }
+    }
+
+    function checkWinner() {
+      let roundWon = false;
+      let winningCombo = [];
+
+      for (const condition of winningConditions) {
+        const [a, b, c] = condition;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          roundWon = true;
+          winningCombo = condition;
+          break;
         }
+      }
 
-        function checkWinner() {
-            let roundWon = false;
-            let winningCombo = [];
+      if (roundWon) {
+        status.textContent = `Player ${currentPlayer} wins!`;
+        gameActive = false;
+        scores[currentPlayer]++;
+        updateScoreboard();
+        highlightWinner(winningCombo, currentPlayer === "X" ? "#2196F3" : "#E91E63");
+        lastWinner = currentPlayer; // ✅ remember who won
+        return;
+      }
 
-            for (const condition of winningConditions) {
-                const [a, b, c] = condition;
-                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                    roundWon = true;
-                    winningCombo = condition;
-                    break;
-                }
-            }
+      if (!board.includes("")) {
+        status.textContent = "It's a draw!";
+        gameActive = false;
+        scores.Draws++;
+        updateScoreboard();
+        lastWinner = "draw"; // ✅ remember draw
+      }
+    }
 
-            if (roundWon) {
-                status.textContent = `Player ${currentPlayer} wins!`;
-                gameActive = false;
-                scores[currentPlayer]++;
-                updateScoreboard();
+    function highlightWinner(indices, color) {
+      indices.forEach((i) => {
+        cells[i].style.background = color;
+        cells[i].style.color = "white";
+      });
+    }
 
-                const color = currentPlayer === "X" ? "#2196F3" : "#E91E63";
-                highlightWinner(winningCombo, color);
-                return;
-            }
+    function updateScoreboard() {
+      scoreboard.textContent = `X: ${scores.X} | O: ${scores.O} | Draws: ${scores.Draws}`;
+    }
 
-            if (!board.includes("")) {
-                status.textContent = "It's a draw!";
-                gameActive = false;
-                scores.Draws++;
-                updateScoreboard();
-            }
-        }
+    function resetGame() {
+      startNewRound(); // ✅ restart using logic
+    }
 
-        function highlightWinner(indices, color) {
-            indices.forEach(i => {
-                cells[i].style.background = color;
-                cells[i].style.color = 'white';
-            });
-        }
-
-        function resetGame() {
-            board = ["", "", "", "", "", "", "", "", ""];
-            cells.forEach(cell => {
-                cell.textContent = "";
-                cell.style.background = "#fff";
-                cell.style.color = "#000";
-            });
-            currentPlayer = "X";
-            gameActive = true;
-            status.textContent = `Player ${currentPlayer}'s turn`;
-        }
-
-        function updateScoreboard() {
-            scoreboard.textContent = `X: ${scores.X} | O: ${scores.O} | Draws: ${scores.Draws}`;
-        }
-
-        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
-        resetButton.addEventListener('click', resetGame);
-    </script>
-
+    cells.forEach((cell) => cell.addEventListener("click", handleCellClick));
+    resetButton.addEventListener("click", resetGame);
+  </script>
 </body>
-
 </html>
